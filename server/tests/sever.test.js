@@ -1,8 +1,14 @@
 const expect = require('expect');
 const request = require('supertest');
 
-const {propertyName} = require('./../server');
-const {Todo} = require('./../todo');
+const {app} = require('./../server');
+const {Todo} = require('./../models/todo_model');
+
+
+// Clean db before every test case
+beforeEach((done) => {
+    Todo.remove({}).then(() => done());
+});
 
 describe('POST /todos', () => {
     it('should create a todo', (done) => {
@@ -17,13 +23,28 @@ describe('POST /todos', () => {
         })
         .end((err, res) => {
             if(err) return done(err);
-
-            Todo.find({text}).then((todos) => {
+            // Check if saved in db
+            Todo.find(/*{text}*/).then((todos) => {
                 expect(todos.length).toBe(1);
                 expect(todos[0].text).toBe(text);
                 done();
-            }).catch((err) => {done(err);});
+            }).catch((err) => done(err));
         });
+    });
 
+    it('should not create todo without required params', (done) => {
+        // no assertion about body is needed
+        request(app)
+        .post('/todos')
+        .send({})
+        .expect(400)
+        .end((err, res) => {
+            if (err) return done(err);
+
+            Todo.find().then((todos) => {
+                expect(todos.length).toBe(0);
+                done();
+            }).catch((err) => done(err));
+        });
     });
 });
