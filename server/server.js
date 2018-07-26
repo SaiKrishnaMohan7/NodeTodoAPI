@@ -1,23 +1,11 @@
-var mongoose = require('Mongoose');
-var url = process.env.DB_URL || 'mongodb://localhost:27017/TodoApp';
+const {mongoose} = require('./db/mongoose');
+const {User} = require('./models/user_model');
+const {Todo} = require('./models/user_model');
 
-// Telling mongoose which Promise lib to use
-mongoose.Promise = global.Promise;
-mongoose.connect(url, {useNewUrlParser: true});
-
-var todoSchema = {
-    text: {type: String, required: true, minlength: 1},
-    completed: {type: Boolean, default: false},
-    completedAt: {type: Number, default: null}
-};
-
-var userSchema = {
-    email: {type: String, required: true, minlength: 1, trim: true}
-};
 
 // Returns constructor
-var Todo = mongoose.model('Todo', todoSchema);
-var User = mongoose.model('User', userSchema);
+
+
 
 /**
  * 
@@ -36,7 +24,7 @@ var createItem = (text, completed, completedAt, email) => {
         console.log(logToConsole(what, doc));
         process.exit(0);
     }, (err) => {
-        console.log(logToConsole());
+        console.log(logToConsole(null, null, err));
     });
 };
 
@@ -60,9 +48,9 @@ var buildOpts = (text, completed, completedAt, email) => {
  * @param {string} what what to save
  * @param {object} item object saved
  */
-var logToConsole = (what, item) => {
+var logToConsole = (what, item, err) => {
     log = (what && item) ? `Saving ${what}: ` + JSON.stringify(item, undefined, 4) :
-            'Unable to create record';
+            `Unable to create record ${err}`;
     return log;
 };
 
