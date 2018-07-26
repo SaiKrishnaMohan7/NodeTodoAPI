@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+var mongoose = require('mongoose');
 
 var userSchema = {
     email: {type: String, required: true, minlength: 1, trim: true}

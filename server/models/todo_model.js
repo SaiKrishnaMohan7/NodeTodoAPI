@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+var mongoose = require('mongoose');
 
 var todoSchema = {
     text: {type: String, required: true, minlength: 1},
