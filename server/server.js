@@ -44,14 +44,18 @@ app.get('/todos', (req, res) => {
 app.get('/todos/:id', (req, res) => {
     var id = req.params.id;
     var isValid = ObjectID.isValid(id);
-
+    
+    // valid id check
     if(!isValid) return res.status(404).send('ID not valid');
 
     Todo.findById(id).then((todo) => {
+        // does record exist check
         if (!todo) return res.status(404).send();
-        res.status(200).send(todo);
-    }, (err) => {
-        // we don't send err, it maay have private info
+        // if exist all is well
+        res.status(200).send({todo});
+        
+        // res.send(todo); Will work but having an obj makes it flexible
+    }).catch((err) => {
         res.status(400).send();
     });
 });
