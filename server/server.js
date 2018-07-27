@@ -1,8 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const {mongoose} = require('./db/mongoose');
-var {ObjectID} = require('mongodb');
+const {mongoose, ObjectID} = require('./db/mongoose');
 const PORT = process.env.PORT || 3000;
 
 var {User} = require('./models/user_model');
@@ -13,13 +12,24 @@ var app = express();
 app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
-    var todo  =  new Todo({text: req.body.text});
+    let text = req.body.text;
+    var todoObj  =  new Todo({text});
+    let query = {text: text, completed: false};
 
-    todo.save().then((doc) => {
-        res.send(doc);
+    Todo.findOne(query).then((todo) => {
+        // Duplicity check
+        if(todo) return res.send('Todo Already Exists');
+
+        // Save
+        todoObj.save().then((doc) => {
+            res.send(doc);
+        }, (err) => {
+            res.status(400).send(err);
+        });
     }, (err) => {
-        res.status(400).send(err);
+        res.send('Something wrong with redundancy check');
     });
+
 });
 
 app.get('/todos', (req, res) => {
