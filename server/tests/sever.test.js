@@ -10,7 +10,9 @@ const todos = [{
     text: 'Todo x'
 }, {
     _id: new ObjectID(),
-    text: 'Todo Y'
+    text: 'Todo Y',
+    completed: true,
+    completedAt: 123456
 }];
 
 // Clean db before every test case
