@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const _ = require('lodash');
 
 const {mongoose, ObjectID} = require('./db/mongoose');
 const PORT = process.env.PORT || 3000;
@@ -67,9 +68,28 @@ app.delete('/todos/:id', (req, res) => {
         if (!todo) return res.status(404).send('No such todo');
 
         res.status(200).send({todo});
-    }, (err) => {
+    }, (/*err*/) => {
         res.status(400).send();
     });
+});
+
+app.patch('/todos/:id', (req, res) => {
+    let {id, isValid} = validator(req.params.id);
+    let body = _.pick(req.body, ['text', 'completed']);
+
+    if(!isValid) return res.status(404).send('Invalid ID');
+
+    if(_.isBoolean(body.completed) && body.completed){
+        body.completedAt = new Date().getTime();
+    } else {
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+        if (!todo) return res.status(200).send(todo);
+        res.status(200).send({todo});
+    }).catch((/*err*/) => res.status(404).send());
 });
 
 var validator = (id) => {
