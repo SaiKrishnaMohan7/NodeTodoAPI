@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 
 const {mongoose} = require('./db/mongoose');
+var {ObjectID} = require('mongodb');
 const PORT = process.env.PORT || 3000;
 
 var {User} = require('./models/user_model');
@@ -26,6 +27,22 @@ app.get('/todos', (req, res) => {
         res.send({todos});
     }, (err) => {
         res.status(400).send(err);
+    });
+});
+
+// Should be get by text, also eleieminate copies
+app.get('/todos/:id', (req, res) => {
+    var id = req.params.id;
+    var isValid = ObjectID.isValid(id);
+
+    if(!isValid) return res.status(404).send('ID not valid');
+
+    Todo.findById(id).then((todo) => {
+        if (!todo) return res.status(404).send();
+        res.status(200).send(todo);
+    }, (err) => {
+        // we don't send err, it maay have private info
+        res.status(400).send();
     });
 });
 
