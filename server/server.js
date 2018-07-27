@@ -40,7 +40,6 @@ app.get('/todos', (req, res) => {
     });
 });
 
-// Should be get by text, also eleieminate copies
 app.get('/todos/:id', (req, res) => {
     let {id, isValid} = validator(req.params.id);
     
