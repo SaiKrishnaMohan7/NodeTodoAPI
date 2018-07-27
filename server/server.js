@@ -13,7 +13,7 @@ app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
     let text = req.body.text;
-    var todoObj  =  new Todo({text});
+    let todoObj  =  new Todo({text});
     let query = {text: text, completed: false};
 
     Todo.findOne(query).then((todo) => {
@@ -42,8 +42,7 @@ app.get('/todos', (req, res) => {
 
 // Should be get by text, also eleieminate copies
 app.get('/todos/:id', (req, res) => {
-    var id = req.params.id;
-    var isValid = ObjectID.isValid(id);
+    let {id, isValid} = validator(req.params.id);
     
     // valid id check
     if(!isValid) return res.status(404).send('ID not valid');
@@ -59,6 +58,25 @@ app.get('/todos/:id', (req, res) => {
         res.status(400).send();
     });
 });
+
+app.delete('/todos/:id', (req, res) => {
+    let {id, isValid} = validator(req.params.id);
+
+    if(!isValid) return res.status(404).send('Invalid ID');
+
+    Todo.findByIdAndRemove(id).then((todo) => {
+        if (!todo) return res.status(404).send('No such todo');
+
+        res.status(200).send({todo});
+    }, (err) => {
+        res.status(400).send();
+    });
+});
+
+var validator = (id) => {
+    var isValid = ObjectID.isValid(id);
+    return {id, isValid};
+};
 
 app.listen(PORT, () => {
     console.log(`App listening on ${PORT}`);
