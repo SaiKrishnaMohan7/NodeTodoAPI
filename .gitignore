@@ -81,3 +81,4 @@ typings/
 .vscode
 .DS_Store
 /mongo-data
+/server/tests/shunned.js
