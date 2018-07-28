@@ -17,7 +17,8 @@ script:
 
 services:
   - mongodb
-branches:
+
+  branches:
   only:
     - master
 
