@@ -1,0 +1,32 @@
+language: node_js
+
+node_js:
+  - '10.6.0'
+
+os:
+  - linux
+
+env:
+  - NODE_ENV=test
+
+cache:
+  - node_modules
+
+script:
+  - npm test
+
+services:
+  - mongodb
+branches:
+  only:
+    - master
+
+install:
+  - npm install
+
+notifications:
+  email:
+    recipients:
+      - kris17demon@gmail.com
+    on_success: never
+    on_failure: change
