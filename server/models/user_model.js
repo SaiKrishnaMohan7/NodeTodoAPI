@@ -35,6 +35,9 @@ var schemaObject = {
 };
 var UserSchema = new mongoose.Schema(schemaObject);
 
+/**
+ * @override
+ */
 UserSchema.methods.toJSON = function () {
     let user = this;
     let userObj = user.toObject();
