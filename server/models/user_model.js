@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 // https://stackoverflow.com/questions/22950282/mongoose-schema-vs-model
 
@@ -77,6 +78,29 @@ UserSchema.statics.findByToken = function (token) {
     let query = {_id: decoded._id, 'tokens.token': token, 'tokens.access': 'auth'};
     return User.findOne(query);
 };
+
+// mongoose middleware - do stuff before or after updating model
+UserSchema.pre('save', function(next){
+    let user = this;
+    let password = user.password;
+
+    // Hash and salt the password and update user instance
+    if (user.isModified('password')) {
+        // salt
+        bcrypt.genSalt(10, (err, salt) => {
+            if(err) return 'Something wrong with salting';
+            // hash password and set
+            bcrypt.hash(password, salt, (err, hash) => {
+                if(err) return 'Something wrong with hashing';
+                user.password = hash;
+                next();
+            });
+        });
+    } else {
+        next();
+    }
+});
+
 
 
 var User = mongoose.model('User', UserSchema);
