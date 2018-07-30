@@ -105,6 +105,17 @@ app.post('/users', (req, res) => {
     }).catch((err) => res.status(400).send(err));
 });
 
+app.get('/users/me', (req, res) => {
+    let token = req.header('x-auth');
+
+    User.findByToken(token).then((user) => {
+        // could also, res.status(401).send(), Promise.reject() will run the catch block!
+        if (!user) return Promise.reject();
+
+        res.send(user);
+    }).catch((err) => res.status(401).send());
+});
+
 var idValidator = (id) => {
     var isValid = ObjectID.isValid(id);
     return {id, isValid};

@@ -53,13 +53,29 @@ UserSchema.methods.generateAuthToken = function () {
     let user = this;
     let access = 'auth';
     let signObj = {_id: user._id.toHexString(), access};
-    let token = jwt.sign((signObj).toString(), 'abc345');
+    let token = jwt.sign(signObj, 'abc345').toString();
 
     user.tokens.push({access, token});
     // user.tokens.concat([{access, token}]);
     return user.save().then(() => {
         return token;
     });
+};
+
+// model method
+UserSchema.statics.findByToken = function (token) {
+    // this binds to the Model itself
+    let User = this;
+    let decoded;
+
+    try {
+        decoded = jwt.verify(token, 'abc345');
+    } catch (error) {
+        return Promise.reject();
+    }
+
+    let query = {_id: decoded._id, 'tokens.token': token, 'tokens.access': 'auth'};
+    return User.findOne(query);
 };
 
 
