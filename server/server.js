@@ -35,7 +35,7 @@ app.post('/todos', (req, res) => {
 
 });
 
-app.get('/todos', (/*req, */ res) => {
+app.get('/todos', (req, res) => {
     Todo.find().then((todos) => {
         res.send({todos});
     }, (err) => {
@@ -96,13 +96,24 @@ app.patch('/todos/:id', (req, res) => {
 
 app.post('/users', (req, res) => {
     let body = _.pick(req.body, ['email', 'password']);
-    let userObj = new User(req.body);
+    let user = new User(body);
 
-    userObj.save().then((user) => {
+    user.save().then(() => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).send(user);
+    }).catch((err) => res.status(400).send(err));
+});
+
+app.get('/users/me', (req, res) => {
+    let token = req.header('x-auth');
+
+    User.findByToken(token).then((user) => {
+        // could also, res.status(401).send(), Promise.reject() will run the catch block!
+        if (!user) return Promise.reject();
+
         res.send(user);
-    }, (err) => {
-        res.status(400).send(err);
-    });
+    }).catch((err) => res.status(401).send());
 });
 
 var idValidator = (id) => {
