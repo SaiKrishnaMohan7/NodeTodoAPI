@@ -9,6 +9,7 @@ const PORT = process.env.PORT;
 
 var {User} = require('./models/user_model');
 var {Todo} = require('./models/todo_model');
+var {authenticate} = require('./middleware/authenticate');
 
 var app = express();
 
@@ -105,15 +106,9 @@ app.post('/users', (req, res) => {
     }).catch((err) => res.status(400).send(err));
 });
 
-app.get('/users/me', (req, res) => {
-    let token = req.header('x-auth');
-
-    User.findByToken(token).then((user) => {
-        // could also, res.status(401).send(), Promise.reject() will run the catch block!
-        if (!user) return Promise.reject();
-
-        res.send(user);
-    }).catch((err) => res.status(401).send());
+// Private Route uses authentication middleware
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
 });
 
 var idValidator = (id) => {
