@@ -63,7 +63,17 @@ UserSchema.methods.generateAuthToken = function () {
     });
 };
 
-// model method
+// instance methods
+UserSchema.methods.removeToken = function (token) {
+    
+    let user = this;
+    let updateQuery = {$pull: {tokens: {token: token}}};
+
+    return user.update(updateQuery);
+};
+// instance methods
+
+// model methods
 UserSchema.statics.findByToken = function (token) {
     // this binds to the Model itself
     let User = this;
@@ -78,6 +88,7 @@ UserSchema.statics.findByToken = function (token) {
     let query = {_id: decoded._id, 'tokens.token': token, 'tokens.access': 'auth'};
     return User.findOne(query);
 };
+// model methods
 
 // model method
 UserSchema.statics.findByCredentials = function (email, password) {
