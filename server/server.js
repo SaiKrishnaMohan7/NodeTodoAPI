@@ -111,6 +111,17 @@ app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
 });
 
+app.post('/users/login', (req, res) => {
+    let email = _.get(req, 'body.email');
+    let password = _.get(req, 'body.password');
+
+    User.findByCredentials(email, password).then((user) => {
+        return user.generateAuthToken().then((token) => {
+            res.header('x-auth', token).send(user);
+        });
+    }).catch((err => res.status(400).send(err)));
+});
+
 var idValidator = (id) => {
     var isValid = ObjectID.isValid(id);
     return {id, isValid};

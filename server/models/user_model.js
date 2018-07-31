@@ -79,6 +79,24 @@ UserSchema.statics.findByToken = function (token) {
     return User.findOne(query);
 };
 
+// model method
+UserSchema.statics.findByCredentials = function (email, password) {
+    // this binds to the Model itself
+    let User = this;
+    let query = {email};
+
+    return User.findOne(query).then((user) => {
+        if (!user) return Promise.reject();
+
+        return bcrypt.compare(password, user.password).then((res) => {
+            if(res) return user;
+
+            return Promise.reject();
+        });
+    });
+    
+};
+
 // mongoose middleware - do stuff before or after updating model
 UserSchema.pre('save', function(next){
     let user = this;
