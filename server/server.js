@@ -122,6 +122,15 @@ app.post('/users/login', (req, res) => {
     }).catch((err => res.status(400).send(err)));
 });
 
+app.delete('/users/me/token', authenticate,(req, res) => {
+    let user = req.user;
+    let token = req.token;
+
+    user.removeToken(token).then(() => {
+        res.status(200).send('logged out');
+    }).catch((err) => res.status(400).send(err));
+});
+
 var idValidator = (id) => {
     var isValid = ObjectID.isValid(id);
     return {id, isValid};
