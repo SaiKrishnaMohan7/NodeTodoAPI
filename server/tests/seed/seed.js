@@ -15,7 +15,7 @@ const todos = [{
 const userOneId = new ObjectID();
 const userTwoId = new ObjectID();
 const users = [{
-    _id: new ObjectID(),
+    _id: userOneId,
     email: 'sai@abc.com',
     password: 'user1Pass',
     tokens: [
