@@ -15,6 +15,7 @@ var app = express();
 
 app.use(bodyParser.json());
 
+// Private route
 app.post('/todos', authenticate, (req, res) => {
     let text = req.body.text;
     let userId = req.user._id;
@@ -28,7 +29,7 @@ app.post('/todos', authenticate, (req, res) => {
 
         // Save
         todoObj.save().then((doc) => {
-            let docClean = _.pick(doc, ['text', 'completed', 'completedAt', 'email']);
+            let docClean = _.pick(doc, ['_id', 'text', 'completed', 'completedAt', 'email']);
             res.send(docClean);
         }, (err) => {
             res.status(400).send(err);
@@ -39,12 +40,13 @@ app.post('/todos', authenticate, (req, res) => {
 
 });
 
+// Private route
 app.get('/todos', authenticate,(req, res) => {
     let query = {userId: req.user._id};
 
     Todo.find(query).then((todos) => {
         todos.forEach(todo => {
-            let todoClean = _.pick(todo, ['text', 'completed', 'completedAt', 'email']);
+            let todoClean = _.pick(todo, ['_id', 'text', 'completed', 'completedAt', 'email']);
             let todoArr = [];
             todoArr.push(todoClean);
             res.send({todoArr});
@@ -54,18 +56,20 @@ app.get('/todos', authenticate,(req, res) => {
     });
 });
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
     let {id, isValid} = idValidator(req.params.id);
+    let userId = req.user._id;
     
     // valid id check
     if(!isValid) return res.status(404).send('ID not valid');
 
-    Todo.findById(id).then((todo) => {
+    Todo.findOne({id, userId}).then((todo) => {
         // does record exist check
         if (!todo) return res.status(404).send();
+
         // if exist all is well
         res.status(200).send({todo});
-        
+
         // res.send(todo); Will work but having an obj makes it flexible
     }).catch((err) => {
         res.status(400).send();
@@ -142,7 +146,8 @@ app.delete('/users/me/token', authenticate,(req, res) => {
 });
 
 var idValidator = (id) => {
-    var isValid = ObjectID.isValid(id);
+    let isValid = ObjectID.isValid(id);
+
     return {id, isValid};
 };
 

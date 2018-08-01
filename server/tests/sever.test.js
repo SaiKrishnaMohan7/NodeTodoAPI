@@ -3,9 +3,9 @@ const request = require('supertest');
 
 const {app} = require('./../server');
 const {Todo} = require('./../models/todo_model');
+const {User} = require('./../models/user_model');
 const {ObjectID} = require('mongodb');
 const {todos, users, populateTodos, populateUsers} = require('./seed/seed');
-const {User} = require('./../models/user_model');
 
 // Clean db before every test case
 beforeEach(populateUsers);
@@ -71,11 +71,14 @@ describe('GET /todos', () => {
 });
 
 describe('GET /todos/:id', () => {
+
     it('should return todo doc', (done) => {
         let todoId = todos[0]._id.toHexString();
+        let token = users[0].tokens[0].token;
 
         request(app)
             .get(`/todos/${todoId}`)
+            .set('x-auth', token)
             .expect(200)
             .expect((res) => {
                 expect(res.body.todo.text).toBe(todos[0].text);
@@ -85,15 +88,32 @@ describe('GET /todos/:id', () => {
 
     it('should return 404 if todo not found', (done) => {
         var hexId = new ObjectID().toHexString();
+        let token = users[0].tokens[0].token;
+
         request(app)
             .get(`/todos/${hexId}`)
+            .set('x-auth', token)
             .expect(404)
             .end(done);
     });
 
     it('should return 404 for invalid object ids', (done) => {
+        let token = users[0].tokens[0].token;
+
         request(app)
             .get('/todos/123')
+            .set('x-auth', token)
+            .expect(404)
+            .end(done);
+    });
+
+    it('should not return todo doc created by other user', (done) => {
+        let todoId = todos[1]._id.toHexString();
+        let token = users[0].tokens[0].token;
+
+        request(app)
+            .get(`/todos/${todoId}`)
+            .set('x-auth', token)
             .expect(404)
             .end(done);
     });
@@ -178,7 +198,7 @@ describe('PATCH /todos/:id', () => {
 
     it('should return 404 for invalid object ids', (done) => {
         request(app)
-            .get('/todos/123')
+            .patch('/todos/123')
             .expect(404)
             .end(done);
     });
@@ -268,7 +288,7 @@ describe('POST /users/login', () => {
             })
             .end((err, res) => {
                 User.findByCredentials(email, password).then((user) => {
-                    expect(user.tokens[0]).toInclude({
+                    expect(user.tokens[1]).toInclude({
                         access: 'auth',
                         token: res.headers['x-auth']
                     });
@@ -290,7 +310,7 @@ describe('POST /users/login', () => {
             })
             .end((err, res) => {
                 User.findByCredentials(email, password).then((user) => {
-                    expect(user.tokens.length).toBe(0);
+                    expect(user.tokens.length).toBe(1);
                     done();
                 }).catch((err) => done(err));
             });
