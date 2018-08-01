@@ -15,10 +15,12 @@ var app = express();
 
 app.use(bodyParser.json());
 
-app.post('/todos', (req, res) => {
+app.post('/todos', authenticate, (req, res) => {
     let text = req.body.text;
-    let todoObj  =  new Todo({text});
-    let query = {text, completed: false};
+    let userId = req.user._id;
+    let email = req.user.email;
+    let todoObj  =  new Todo({text, userId, email});
+    let query = {text, completed: false, userId};
 
     Todo.findOne(query).then((todo) => {
         // Duplicity check
@@ -26,7 +28,8 @@ app.post('/todos', (req, res) => {
 
         // Save
         todoObj.save().then((doc) => {
-            res.send(doc);
+            let docClean = _.pick(doc, ['text', 'completed', 'completedAt', 'email']);
+            res.send(docClean);
         }, (err) => {
             res.status(400).send(err);
         });
@@ -36,9 +39,16 @@ app.post('/todos', (req, res) => {
 
 });
 
-app.get('/todos', (req, res) => {
-    Todo.find().then((todos) => {
-        res.send({todos});
+app.get('/todos', authenticate,(req, res) => {
+    let query = {userId: req.user._id};
+
+    Todo.find(query).then((todos) => {
+        todos.forEach(todo => {
+            let todoClean = _.pick(todo, ['text', 'completed', 'completedAt', 'email']);
+            let todoArr = [];
+            todoArr.push(todoClean);
+            res.send({todoArr});
+        });
     }, (err) => {
         res.status(400).send(err);
     });

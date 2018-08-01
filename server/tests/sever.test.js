@@ -13,13 +13,12 @@ beforeEach(populateTodos);
 
 describe('POST /todos', () => {
     it('should create a todo', (done) => {
-        var text = 'Todo test';
-
+        var text = 'Test Todos';
+        let token = users[0].tokens[0].token;
         request(app)
             .post('/todos')
-            .send({
-                text
-            })
+            .set('x-auth', token)
+            .send({text})
             .expect(200)
             .expect((res) => {
                 expect(res.body.text).toBe(text);
@@ -38,9 +37,12 @@ describe('POST /todos', () => {
     });
 
     it('should not create todo without required params', (done) => {
+        let token = users[0].tokens[0].token;
+
         // no assertion about body is needed
         request(app)
             .post('/todos')
+            .set('x-auth', token)
             .send({})
             .expect(400)
             .end((err) => {
@@ -55,12 +57,14 @@ describe('POST /todos', () => {
 });
 
 describe('GET /todos', () => {
-    it('should get all todos from db', (done) => {
+    it('should get all todos related to user from db', (done) => {
+        let token = users[0].tokens[0].token;
         request(app)
             .get('/todos')
+            .set('x-auth', token)
             .expect(200)
             .expect((res) => {
-                expect(res.body.todos.length).toBe(todos.length);
+                expect(res.body.todoArr.length).toBe(1);
             })
             .end(done);
     });
