@@ -32,3 +32,6 @@ notifications:
       - kris17demon@gmail.com
     on_success: never
     on_failure: change
+
+after-script:
+  - kill $(jobs -p)
