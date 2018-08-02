@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const bcrypt = require('bcryptjs');
 
+const SECRET = process.env.JWT_SECRET;
+
 // https://stackoverflow.com/questions/22950282/mongoose-schema-vs-model
 
 var schemaObject = {
@@ -54,7 +56,7 @@ UserSchema.methods.generateAuthToken = function () {
     let user = this;
     let access = 'auth';
     let signObj = {_id: user._id.toHexString(), access};
-    let token = jwt.sign(signObj, 'abc345').toString();
+    let token = jwt.sign(signObj, SECRET).toString();
 
     user.tokens.push({access, token});
     // user.tokens.concat([{access, token}]);
@@ -79,7 +81,7 @@ UserSchema.statics.findByToken = function (token) {
     let decoded;
 
     try {
-        decoded = jwt.verify(token, 'abc345');
+        decoded = jwt.verify(token, SECRET);
     } catch (error) {
         return Promise.reject();
     }
