@@ -2,7 +2,7 @@
 A Todo API built with express and mongo. It uses JWT (JSON Web Tokens) for authentication and uses tokens for authorization
 
 ## Technologies
-* Express - Middleware, Web Tier
+* Express - Middleware, Business Logic Tier
 * MongoDB - Persistence/Data Tier
 * Mongoose ORM - Data Access Tier
 * Mocha, expect, supertest - Unit Tests
