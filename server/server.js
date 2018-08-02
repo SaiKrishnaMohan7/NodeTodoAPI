@@ -15,10 +15,13 @@ var app = express();
 
 app.use(bodyParser.json());
 
-app.post('/todos', (req, res) => {
+// Private Route uses authentication middleware
+app.post('/todos', authenticate, (req, res) => {
     let text = req.body.text;
-    let todoObj  =  new Todo({text});
-    let query = {text, completed: false};
+    let userId = req.user._id;
+    let email = req.user.email;
+    let todoObj  =  new Todo({text, userId, email});
+    let query = {text, completed: false, userId};
 
     Todo.findOne(query).then((todo) => {
         // Duplicity check
@@ -26,7 +29,8 @@ app.post('/todos', (req, res) => {
 
         // Save
         todoObj.save().then((doc) => {
-            res.send(doc);
+            let docClean = _.pick(doc, ['_id', 'text', 'completed', 'completedAt', 'email']);
+            res.send(docClean);
         }, (err) => {
             res.status(400).send(err);
         });
@@ -36,38 +40,48 @@ app.post('/todos', (req, res) => {
 
 });
 
-app.get('/todos', (req, res) => {
-    Todo.find().then((todos) => {
-        res.send({todos});
+app.get('/todos', authenticate,(req, res) => {
+    let query = {userId: req.user._id};
+
+    Todo.find(query).then((todos) => {
+        todos.forEach(todo => {
+            let todoClean = _.pick(todo, ['_id', 'text', 'completed', 'completedAt', 'email']);
+            let todoArr = [];
+            todoArr.push(todoClean);
+            res.send({todoArr});
+        });
     }, (err) => {
         res.status(400).send(err);
     });
 });
 
-app.get('/todos/:id', (req, res) => {
+app.get('/todos/:id', authenticate, (req, res) => {
     let {id, isValid} = idValidator(req.params.id);
+    let userId = req.user._id;
     
     // valid id check
     if(!isValid) return res.status(404).send('ID not valid');
 
-    Todo.findById(id).then((todo) => {
+    Todo.findOne({_id: id, userId}).then((todo) => {
         // does record exist check
         if (!todo) return res.status(404).send();
+
         // if exist all is well
         res.status(200).send({todo});
-        
+
         // res.send(todo); Will work but having an obj makes it flexible
     }).catch((err) => {
         res.status(400).send();
     });
 });
 
-app.delete('/todos/:id', (req, res) => {
+app.delete('/todos/:id', authenticate, (req, res) => {
     let {id, isValid} = idValidator(req.params.id);
+    let userId = req.user._id;
 
     if(!isValid) return res.status(404).send('Invalid ID');
 
-    Todo.findByIdAndRemove(id).then((todo) => {
+    Todo.findOneAndRemove({_id: id, userId}).then((todo) => {
         if (!todo) return res.status(404).send('No such todo');
 
         res.status(200).send({todo});
@@ -76,9 +90,11 @@ app.delete('/todos/:id', (req, res) => {
     });
 });
 
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
     let {id, isValid} = idValidator(req.params.id);
     let body = _.pick(req.body, ['text', 'completed']);
+    let userId = req.user._id;
+    let query = {_id: id, userId};
 
     if(!isValid) return res.status(404).send('Invalid ID');
 
@@ -89,11 +105,25 @@ app.patch('/todos/:id', (req, res) => {
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id, {$set: body}, {new: true}).then((todo) => {
+    Todo.findOneAndUpdate(query, {$set: body}, {new: true}).then((todo) => {
         if (!todo) return res.status(404).send();
         res.status(200).send({todo});
     }).catch((/*err*/) => res.status(404).send());
 });
+
+app.get('/users/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+app.delete('/users/me/token', authenticate,(req, res) => {
+    let user = req.user;
+    let token = req.token;
+
+    user.removeToken(token).then(() => {
+        res.status(200).send('logged out');
+    }).catch((err) => res.status(400).send(err));
+});
+// Private Route uses authentication middleware
 
 app.post('/users', (req, res) => {
     let body = _.pick(req.body, ['email', 'password']);
@@ -104,11 +134,6 @@ app.post('/users', (req, res) => {
     }).then((token) => {
         res.header('x-auth', token).send(user);
     }).catch((err) => res.status(400).send(err));
-});
-
-// Private Route uses authentication middleware
-app.get('/users/me', authenticate, (req, res) => {
-    res.send(req.user);
 });
 
 app.post('/users/login', (req, res) => {
@@ -122,17 +147,10 @@ app.post('/users/login', (req, res) => {
     }).catch((err => res.status(400).send(err)));
 });
 
-app.delete('/users/me/token', authenticate,(req, res) => {
-    let user = req.user;
-    let token = req.token;
-
-    user.removeToken(token).then(() => {
-        res.status(200).send('logged out');
-    }).catch((err) => res.status(400).send(err));
-});
 
 var idValidator = (id) => {
-    var isValid = ObjectID.isValid(id);
+    let isValid = ObjectID.isValid(id);
+
     return {id, isValid};
 };
 

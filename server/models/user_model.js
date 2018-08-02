@@ -63,7 +63,6 @@ UserSchema.methods.generateAuthToken = function () {
     });
 };
 
-// instance methods
 UserSchema.methods.removeToken = function (token) {
     
     let user = this;
@@ -88,9 +87,7 @@ UserSchema.statics.findByToken = function (token) {
     let query = {_id: decoded._id, 'tokens.token': token, 'tokens.access': 'auth'};
     return User.findOne(query);
 };
-// model methods
 
-// model method
 UserSchema.statics.findByCredentials = function (email, password) {
     // this binds to the Model itself
     let User = this;
@@ -107,6 +104,8 @@ UserSchema.statics.findByCredentials = function (email, password) {
     });
     
 };
+
+// model methods
 
 // mongoose middleware - do stuff before or after updating model
 UserSchema.pre('save', function(next){
