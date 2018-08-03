@@ -33,20 +33,6 @@ app.post('/todos', authenticate, async (req, res) => {
     } catch (e) {
         res.status(400).send();
     }
-    // Todo.findOne(query).then((todo) => {
-    //     // Duplicity check
-    //     if(todo) return res.send('Todo Already Exists');
-
-    //     // Save
-    //     todoObj.save().then((doc) => {
-    //         let docClean = _.pick(doc, ['_id', 'text', 'completed', 'completedAt', 'email']);
-    //         res.send(docClean);
-    //     }, (err) => {
-    //         res.status(400).send(err);
-    //     });
-    // }, (/*err*/) => {
-    //     res.send('Something wrong with redundancy check');
-    // });
 
 });
 

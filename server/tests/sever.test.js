@@ -11,6 +11,7 @@ const {todos, users, populateTodos, populateUsers} = require('./seed/seed');
 beforeEach(populateUsers);
 beforeEach(populateTodos);
 
+/*jshint ignore: start*/
 describe('POST /todos', () => {
     it('should create a todo',  (done) => {
         var text = 'Test Todos';
@@ -411,3 +412,4 @@ describe('DELETE /users/me/token', () => {
             });
     });
 });
+/*jshint ignore: end*/
