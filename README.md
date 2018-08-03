@@ -25,9 +25,9 @@ A Todo API built with express and mongo. It uses JWT (JSON Web Tokens) for authe
 * Todos for each user will be unique
 
 ## Future Work
-* Document Postman shortcuts
-* Async/Await
-* Separate routes and the application middleware
-* Better way to logout
-* Token refresh (session)
-* Build a UI
+- [ ] Document Postman shortcuts
+- [x] Async/Await
+- [ ] Separate routes and the application middleware
+- [ ] Better way to logout
+- [ ] Token refresh (session)
+- [ ] Build a UI
