@@ -3,6 +3,3 @@ services:
   db:
     image: mongo
     network_mode: host
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: test
