@@ -14,82 +14,77 @@ var app = express();
 
 app.use(bodyParser.json());
 
+/*jshint ignore: start*/
 // Private Route uses authentication middleware
-app.post('/todos', authenticate, (req, res) => {
+app.post('/todos', authenticate, async (req, res) => {
     let text = req.body.text;
     let userId = req.user._id;
     let email = req.user.email;
     let todoObj  =  new Todo({text, userId, email});
     let query = {text, completed: false, userId};
-
-    Todo.findOne(query).then((todo) => {
-        // Duplicity check
+    try {
+        let todo = await Todo.findOne(query);
         if(todo) return res.send('Todo Already Exists');
 
-        // Save
-        todoObj.save().then((doc) => {
-            let docClean = _.pick(doc, ['_id', 'text', 'completed', 'completedAt', 'email']);
-            res.send(docClean);
-        }, (err) => {
-            res.status(400).send(err);
-        });
-    }, (/*err*/) => {
-        res.send('Something wrong with redundancy check');
-    });
+        let savedTodo = await todoObj.save();
+        let docClean = _.pick(savedTodo, ['_id', 'text', 'completed', 'completedAt', 'email']);
+        res.send(docClean);
+    } catch (e) {
+        res.status(400).send();
+    }
 
 });
 
-app.get('/todos', authenticate,(req, res) => {
+app.get('/todos', authenticate, async (req, res) => {
     let query = {userId: req.user._id};
-
-    Todo.find(query).then((todos) => {
+    try {
+        let todos = await Todo.find(query);
         todos.forEach(todo => {
             let todoClean = _.pick(todo, ['_id', 'text', 'completed', 'completedAt', 'email']);
             let todoArr = [];
             todoArr.push(todoClean);
             res.send({todoArr});
         });
-    }, (err) => {
-        res.status(400).send(err);
-    });
+    } catch (e) {
+        res.status(400).send(e);
+    }
 });
 
-app.get('/todos/:id', authenticate, (req, res) => {
+app.get('/todos/:id', authenticate, async (req, res) => {
     let {id, isValid} = idValidator(req.params.id);
     let userId = req.user._id;
-    
+    let query = {_id: id, userId};
+
     // valid id check
     if(!isValid) return res.status(404).send('ID not valid');
-
-    Todo.findOne({_id: id, userId}).then((todo) => {
-        // does record exist check
+    try {
+        let todo = await Todo.findOne(query);
         if (!todo) return res.status(404).send();
 
-        // if exist all is well
         res.status(200).send({todo});
-
-        // res.send(todo); Will work but having an obj makes it flexible
-    }).catch((err) => {
-        res.status(400).send();
-    });
+    } catch (e) {
+        res.status(400).send(e);
+    }
 });
 
-app.delete('/todos/:id', authenticate, (req, res) => {
+
+app.delete('/todos/:id', authenticate, async (req, res) => {
     let {id, isValid} = idValidator(req.params.id);
     let userId = req.user._id;
+    let query = {_id: id, userId};
 
     if(!isValid) return res.status(404).send('Invalid ID');
-
-    Todo.findOneAndRemove({_id: id, userId}).then((todo) => {
+    try {
+        let todo = await Todo.findOneAndRemove(query);
         if (!todo) return res.status(404).send('No such todo');
 
         res.status(200).send({todo});
-    }, (/*err*/) => {
-        res.status(400).send();
-    });
+    } catch (e) {
+        res.status(400).send(e);
+    }
 });
 
-app.patch('/todos/:id', authenticate, (req, res) => {
+app.patch('/todos/:id', authenticate, async (req, res) => {
     let {id, isValid} = idValidator(req.params.id);
     let body = _.pick(req.body, ['text', 'completed']);
     let userId = req.user._id;
@@ -104,48 +99,55 @@ app.patch('/todos/:id', authenticate, (req, res) => {
         body.completedAt = null;
     }
 
-    Todo.findOneAndUpdate(query, {$set: body}, {new: true}).then((todo) => {
+    try {
+        let todo = await Todo.findOneAndUpdate(query, {$set: body}, {new: true});
         if (!todo) return res.status(404).send();
+    
         res.status(200).send({todo});
-    }).catch((/*err*/) => res.status(404).send());
+    } catch (e) {
+        res.status(404).send(e);
+    }
 });
 
 app.get('/users/me', authenticate, (req, res) => {
     res.send(req.user);
 });
 
-app.delete('/users/me/token', authenticate,(req, res) => {
+app.delete('/users/me/token', authenticate, async (req, res) => {
     let user = req.user;
     let token = req.token;
-
-    user.removeToken(token).then(() => {
+    try {
+        await user.removeToken(token);
         res.status(200).send('logged out');
-    }).catch((err) => res.status(400).send(err));
+    } catch (e) {
+        res.status(400).send();
+    };
 });
-// Private Route uses authentication middleware
 
-app.post('/users', (req, res) => {
+app.post('/users', async (req, res) => {
     let body = _.pick(req.body, ['email', 'password']);
     let user = new User(body);
-
-    user.save().then(() => {
-        return user.generateAuthToken();
-    }).then((token) => {
+    try {
+        await user.save();
+        let token = await user.generateAuthToken();
         res.header('x-auth', token).send(user);
-    }).catch((err) => res.status(400).send(err));
+    } catch (e) {
+        res.status(400).send(e);
+    }
 });
 
-app.post('/users/login', (req, res) => {
-    let email = _.get(req, 'body.email');
-    let password = _.get(req, 'body.password');
-
-    User.findByCredentials(email, password).then((user) => {
-        return user.generateAuthToken().then((token) => {
-            res.header('x-auth', token).send(user);
-        });
-    }).catch((err => res.status(400).send(err)));
+app.post('/users/login', async (req, res) => {
+    try {
+        let email = _.get(req, 'body.email');
+        let password = _.get(req, 'body.password');
+        let user = await User.findByCredentials(email, password);
+        let token = await user.generateAuthToken();
+        res.header('x-auth', token).send(user);
+    } catch (e) {
+        res.status(400).send(e)
+    }
 });
-
+/*jshint ignore: end*/
 
 var idValidator = (id) => {
     let isValid = ObjectID.isValid(id);
