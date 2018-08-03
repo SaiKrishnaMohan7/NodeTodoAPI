@@ -12,7 +12,7 @@ beforeEach(populateUsers);
 beforeEach(populateTodos);
 
 describe('POST /todos', () => {
-    it('should create a todo', (done) => {
+    it('should create a todo',  (done) => {
         var text = 'Test Todos';
         let token = users[0].tokens[0].token;
         request(app)
@@ -23,16 +23,18 @@ describe('POST /todos', () => {
             .expect((res) => {
                 expect(res.body.text).toBe(text);
             })
-            .end((err, res) => {
+            .end(async (err, res) => {
                 if (err) return done(err);
-                // Check if saved in db
-                Todo.find({
-                    text
-                }).then((todos) => {
+
+                try {
+                    // Check if saved in db
+                    let todos = await Todo.find({text});
                     expect(todos.length).toBe(1);
                     expect(todos[0].text).toBe(text);
                     done();
-                }).catch((err) => done(err));
+                } catch (e) {
+                    done(e);
+                }
             });
     });
 
@@ -45,13 +47,16 @@ describe('POST /todos', () => {
             .set('x-auth', token)
             .send({})
             .expect(400)
-            .end((err) => {
+            .end(async (err) => {
                 if (err) return done(err);
-
-                Todo.find().then((todos) => {
+                try {
+                    // Check if saved in db
+                    let todos = await Todo.find();
                     expect(todos.length).toBe(todos.length);
                     done();
-                }).catch((err) => done(err));
+                } catch (e) {
+                    done(e);
+                }
             });
     });
 });
@@ -131,13 +136,16 @@ describe('DELETE /todos/:id', () => {
             .expect((res) => {
                 expect(res.body.todo._id).toBe(todoId);
             })
-            .end((err) => {
+            .end(async (err) => {
                 if (err) return done(err);
 
-                Todo.findById(todoId).then((todo) => {
+                try {
+                    let todo = await Todo.findById(todoId);
                     expect(todo).toBeFalsy();
                     done();
-                }).catch((err) => done(err));
+                } catch (e) {
+                    done(e);
+                }
             });
     });
 
@@ -149,13 +157,16 @@ describe('DELETE /todos/:id', () => {
             .delete(`/todos/${todoId}`)
             .set('x-auth', token)
             .expect(404)
-            .end((err) => {
+            .end(async (err) => {
                 if (err) return done(err);
 
-                Todo.findById(todoId).then((todo) => {
+                try {
+                    let todo = await Todo.findById(todoId);
                     expect(todo).toBeTruthy();
                     done();
-                }).catch((err) => done(err));
+                } catch (e) {
+                    done(e);
+                }
             });
     });
 
@@ -296,14 +307,17 @@ describe('POST /users', () => {
                 expect(res.body._id).toBeTruthy();
                 expect(res.body.email).toBe(email);
             })
-            .end((err, res) => {
+            .end(async (err) => {
                 if (err) return done(err);
 
-                User.findOne({email}).then((user) => {
-                    expect(user).toBeTruthy();
-                    expect(user.password).not.toBe(password);
-                    done();
-                }).catch((err) => done(err));
+                    try {
+                        let user =  await User.findOne({email});
+                        expect(user).toBeTruthy();
+                        expect(user.password).not.toBe(password);
+                        done();
+                    } catch (e) {
+                        done(e);
+                    }
             });
     });
     
@@ -336,15 +350,19 @@ describe('POST /users/login', () => {
             .expect((res) => {
                 expect(res.headers['x-auth']).toBeTruthy();
             })
-            .end((err, res) => {
-                User.findByCredentials(email, password).then((user) => {
+            .end(async (err, res) => {
+                try {
+                    let user = await User.findByCredentials();
+
                     // .toMatchObject checks if subset not hard equal
                     expect(user.toObject().tokens[1]).toMatchObject({
                         access: 'auth',
                         token: res.headers['x-auth']
                     });
                     done();
-                }).catch((err) => done(err));
+                } catch (e) {
+                    done(e);
+                }
             });
     });
 
@@ -359,14 +377,16 @@ describe('POST /users/login', () => {
             .expect((res) => {
                 expect(res.headers['x-auth']).toNotExist();
             })
-            .end((err, res) => {
-                User.findByCredentials(email, password).then((user) => {
+            .end(async () => {
+                try {
+                    let user = await User.findByCredentials(email, password);
                     expect(user.tokens.length).toBe(1);
                     done();
-                }).catch((err) => done(err));
+                } catch (e) {
+                    done(e);
+                }
             });
     });
-
 });
 
 describe('DELETE /users/me/token', () => {
@@ -378,13 +398,16 @@ describe('DELETE /users/me/token', () => {
             .delete('/users/me/token')
             .set('x-auth', token)
             .expect(200)
-            .end((err, res) => {
+            .end(async (err) => {
                 if (err) return done(err);
 
-                User.findById(id).then((user) => {
+                try {
+                    let user = await User.findById(id);
                     expect(user.tokens.length).toBe(0);
                     done();
-                }).catch((e) => done(e));
+                } catch (e) {
+                    done(e);
+                }
             });
     });
 });
