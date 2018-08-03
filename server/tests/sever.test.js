@@ -11,6 +11,10 @@ const {todos, users, populateTodos, populateUsers} = require('./seed/seed');
 beforeEach(populateUsers);
 beforeEach(populateTodos);
 
+after(function() {
+	return require('../db/mongoose').mongoose.disconnect();
+});
+
 describe('POST /todos', () => {
     it('should create a todo', (done) => {
         var text = 'Test Todos';
