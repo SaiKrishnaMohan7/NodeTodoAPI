@@ -15,7 +15,7 @@ A Todo API built with express and mongo. It uses JWT (JSON Web Tokens) for authe
 * Heroku - Hosting
 
 ## Usage
-* The API is live [here](https://still-shore-57380.herokuapp.com/)
+* The API is live [here](https://todo--node.herokuapp.com/)
 * Sign up users by via postman, endpoint `/users` with email and password as JSON in the body (Create)
     * If successful you will receive the auth token in the response header as `x-auth`
 * Use the above token in the header of your request to `/todos` with a JSON like `{"text" : "My Todo"}` to create todos (Create)
@@ -28,8 +28,8 @@ A Todo API built with express and mongo. It uses JWT (JSON Web Tokens) for authe
 
 ## Future Work
 - [ ] Document Postman shortcuts
+- [x] Change Heroku app name to antyhing else but the default one
 - [x] Async/Await
 - [ ] Separate routes and the application middleware
-- [ ] Better way to logout
 - [ ] Token refresh (session)
 - [ ] Build a UI
