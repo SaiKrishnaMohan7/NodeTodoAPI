@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 
 const PORT = process.env.PORT || 3000;
+const {app} = require('../server');
 
-require('../server').app.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`App listening on ${PORT}`);
 });
