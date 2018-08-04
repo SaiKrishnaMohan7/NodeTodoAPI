@@ -82,4 +82,4 @@ typings/
 .DS_Store
 /mongo-data
 /server/tests/shunned.js
-/server/config/
+/server/config/config.json
