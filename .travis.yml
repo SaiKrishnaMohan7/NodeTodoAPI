@@ -28,7 +28,7 @@ after-script:
 - kill $(jobs -p)
 
 deploy:
-  provider: Heroku
+  provider: heroku
   api_key:
     secure: 0CU9u7WMRl9cqucjhgg7tSXNQfRsxhIw4JxyIq1OzUwXEx8rCn8+QLHgmDZV7OIqioyeuo+G+zmK/3S9Nr/jimL6KGM3cU0omTaBVg8Vq1S2RuAL3syGbujmAvtC9rau/yX2duzziCaR3VXhH1tzJ/hyilvwOmjafYwIxTs/Lkh3WJfoXGAnEDFVfoxqJuR8WMS5UPFa7EPtuc5PoP1V1hvIc3QVlbwXsf4Vbrwk176UNWXo6TSkfhJ2sRePU7c25H7NREJ5XBDdoktskXh6wqooc3LqeG0d/9+cNDedPRNCas07yJNk/aOZ6zk6qR3fVVWobcujCds2f5Wbcx98T2oqiHZqyYtqyGVzj89wFwlj/VYu3PhJY1vrXCk41o/elYY8h3lv/aZ/6K+gQjXlsaiCePkGTgfEuJv9kTI7V0e+L+r2TuuzrkkiYuEU1oWUWZMQ3d6vYhuxtihPhJW8Xw+OD35tqple2xCVeiO4YWQUxZaboklGHRPDcXBZEUrAx89nAroTRx006W5Fkiams9XNPuoQYZnw9+eCJJBBKB85QTS5mgLSi0zPI9SqV4DzxrYuknJtKBhBLA/7ypdVpt/QBj6zvMF++ojreSMGEIhf30ld7NG5V3fZVCrWL+f039CCQEO4vNe3AsNtfSA6DNmU9qX0rORNc99tJBsLhyY=
   app:
