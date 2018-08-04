@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/SaiKrishnaMohan7/NodeTodoAPI.svg?branch=master)](https://travis-ci.org/SaiKrishnaMohan7/NodeTodoAPI)
+
 # Todo API
 A Todo API built with express and mongo. It uses JWT (JSON Web Tokens) for authentication and uses tokens for authorization
 
