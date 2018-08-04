@@ -5,16 +5,14 @@ const {app} = require('./../server');
 const {Todo} = require('./../models/todo_model');
 const {User} = require('./../models/user_model');
 const {ObjectID} = require('mongodb');
-const {todos, users, populateTodos, populateUsers} = require('./seed/seed');
+const {todos, users, populateTodos, populateUsers, purgeConnection} = require('./seed/seed');
 
 // Clean db before every test case
 beforeEach(populateUsers);
 beforeEach(populateTodos);
 
-
-after(function() {
-	return require('../db/mongoose').mongoose.disconnect();
-});
+// Purge DB connection after tests
+after(purgeConnection);
 
 
 /*jshint ignore: start*/

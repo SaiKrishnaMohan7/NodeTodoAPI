@@ -1,7 +1,9 @@
 const {ObjectID} = require('mongodb');
 const jwt = require('jsonwebtoken');
+
 const {Todo} = require('./../../models/todo_model');
 const {User} = require('./../../models/user_model');
+const {mongoose} = require('./../../db/mongoose');
 
 const SECRET = process.env.JWT_SECRET;
 const userOneId = new ObjectID();
@@ -56,4 +58,8 @@ const populateUsers = (done) => {
     }).then(() => done());
 };
 
-module.exports= {todos, users, populateTodos, populateUsers};
+const purgeConnection = () => {
+    return mongoose.disconnect();
+};
+
+module.exports= {todos, users, populateTodos, populateUsers, purgeConnection};
