@@ -5,7 +5,6 @@ const bodyParser = require('body-parser');
 const _ = require('lodash');
 
 const {ObjectID} = require('./db/mongoose');
-const PORT = process.env.PORT;
 
 const {User} = require('./models/user_model');
 const {Todo} = require('./models/todo_model');
@@ -155,9 +154,5 @@ var idValidator = (id) => {
 
     return {id, isValid};
 };
-
-app.listen(PORT, () => {
-    console.log(`App listening on ${PORT}`);
-});
 
 module.exports = {app};

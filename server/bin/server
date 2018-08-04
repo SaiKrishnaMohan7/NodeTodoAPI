@@ -1,0 +1,7 @@
+#!/usr/bin/env node
+
+const PORT = process.env.PORT || 8001;
+
+require('../server').app.listen(PORT, () => {
+    console.log(`App listening on ${PORT}`);
+});

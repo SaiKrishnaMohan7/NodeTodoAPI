@@ -11,7 +11,14 @@ const {todos, users, populateTodos, populateUsers} = require('./seed/seed');
 beforeEach(populateUsers);
 beforeEach(populateTodos);
 
+
+after(function() {
+	return require('../db/mongoose').mongoose.disconnect();
+});
+
+
 /*jshint ignore: start*/
+
 describe('POST /todos', () => {
     it('should create a todo',  (done) => {
         var text = 'Test Todos';
@@ -412,4 +419,5 @@ describe('DELETE /users/me/token', () => {
             });
     });
 });
+
 /*jshint ignore: end*/
