@@ -30,6 +30,6 @@ A Todo API built with express and mongo. It uses JWT (JSON Web Tokens) for authe
 - [ ] Document Postman shortcuts
 - [x] Change Heroku app name to antyhing else but the default one
 - [x] Async/Await
-- [ ] Separate routes and the application middleware
+- [x] Separate routes and application middleware
 - [ ] Token refresh (session)
 - [ ] Build a UI
