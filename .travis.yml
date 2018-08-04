@@ -35,3 +35,6 @@ deploy:
     NodeTodoAPI
   on:
     SaiKrishnaMohan7/NodeTodoAPI
+  branches:
+    only:
+      - master
