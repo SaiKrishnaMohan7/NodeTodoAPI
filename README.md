@@ -5,13 +5,14 @@ A Todo API built with express and mongo. It uses JWT (JSON Web Tokens) for authe
 
 ## Technologies
 * Express - Middleware, Business Logic Tier
+* Helmet - Middleware, securtiy
 * MongoDB - Persistence/Data Tier
 * Mongoose ORM - Data Access Tier
 * Mocha, expect, supertest - Unit Tests
 * JSONWebToken - Authentication, Authorization
-* BCrypt - Salting and hashinf passwords
+* BCrypt - Salting and hashing passwords
 * Postman - For testing API endpoints
-* Travis - CI
+* Travis - CI and CD
 * Heroku - Hosting
 
 ## Usage
@@ -31,5 +32,10 @@ A Todo API built with express and mongo. It uses JWT (JSON Web Tokens) for authe
 - [x] Change Heroku app name to antyhing else but the default one
 - [x] Async/Await
 - [x] Separate routes and application middleware
-- [ ] Token refresh (session)
 - [ ] Build a UI
+
+## Something worth experimenting with
+- [x] Helmet integration
+- [ ] Token refresh, session authentication
+- [ ] Switching to digital ocean to get more control over env
+- [ ] Have a Dockerized developement env
