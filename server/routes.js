@@ -6,6 +6,8 @@ const {Todo} = require('./models/todo_model');
 const {authenticate} = require('./middleware/authenticate');
 
 module.exports = function(app){
+    // https://stackoverflow.com/questions/12695591/node-js-express-js-how-does-app-router-work
+    
     /*jshint ignore: start*/
     // Private Route uses authentication middleware
     app.post('/todos', authenticate, async (req, res) => {
