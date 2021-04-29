@@ -1,0 +1,23 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: mocha
+    versions:
+    - 8.2.1
+    - 8.3.0
+    - 8.3.1
+  - dependency-name: helmet
+    versions:
+    - 4.4.1
+  - dependency-name: validator
+    versions:
+    - 13.5.2
+  - dependency-name: lodash
+    versions:
+    - 4.17.20
